@@ -7,6 +7,7 @@
  */
 include_once('lib/HomegrownMVC/HomegrownMVC.php');
 include_once('lib/Smarty/Smarty.class.php');
+include_once('config/Config.php');
 
 /*** Server config ***/
 Config::reifyEnvironment(); // sets some environmental variables needed by various things
