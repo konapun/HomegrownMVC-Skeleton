@@ -6,11 +6,10 @@ Skeleton for project using [HomegrownMVC](https://github.com/konapun/HomegrownMV
   * Database: [PDO](http://php.net/pdo) (add your connection params in /config/Config.php)
   * Requests: HomegrownMVC
 
-Your Apache config must `AllowOverride` so this project's .htaccess can do URL rewrites.
-
 ## Getting started
   1. Assuming you have installed PDO with drivers for the database of your choice, simply download this project and put it in your webroot.
-  2. Next, open config/Config.php and edit PDO connection parameters for your database
-  3. Start creating controllers and defining your routes (see [documentation](https://github.com/konapun/HomegrownMVC) for details)
-  4. Create your pages in views as Smarty templates and invoke the view engine from your controller.
+  2. Ensure your Apache config has `AllowOverride` enabled so this project's .htaccess can do URL rewrites.
+  3. Next, open config/Config.php and edit PDO connection parameters for your database
+  4. Start creating controllers and defining your routes (see [documentation](https://github.com/konapun/HomegrownMVC) for details)
+  5. Create your pages in views as Smarty templates and invoke the view engine from your controller.
     - A sample error controller and error page is included and can be used as an example
