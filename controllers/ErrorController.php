@@ -18,8 +18,6 @@ class ErrorController extends WildcardController {
 			 * Handle the standard 404 route
 			 */
 			'404' => function($context) use ($that) {
-				$viewEngine = $context->getViewEngine();
-				
 				$that->invokeRoute('/error/404/Page Not Found'); // forward to custom error path
 			},
 			
