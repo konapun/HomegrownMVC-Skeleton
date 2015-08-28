@@ -1,6 +1,9 @@
+{extends file="views/partials/wrapper.html"}
+{block name="content"}
 <div class="center">
 	<h2 class="error">Error {$error_msg}</h2>
 	<div class="error-body">
 		{$error_body|default:''}
 	</div>
 </div>
+{/block}
