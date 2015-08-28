@@ -48,6 +48,13 @@ class TieredConfiguration implements ConfigurationReader {
 		return $this->getSection($key)->getData();
 	}
 
+	/*
+	 * Return a configuration node using the tree API
+	 */
+	function getConfigurationDump($key) {
+		return $this->cache->getValue($key);
+	}
+
   /*
 	 * Dump all variables in the configuration
 	 */
