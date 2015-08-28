@@ -1,0 +1,17 @@
+{
+  "COMMENTS": [
+    "This file contains variables which stay the same no matter the environment"
+  ],
+
+  "general": {
+    "VERSION": "0.0.1",
+    "TIMEZONE": "UTC"
+  },
+  "bootstrapping": {
+    "env_vars": {},
+    "init_settinigs": {}
+  },
+  "database": {
+    "USE_DATABASE": true
+  }
+}

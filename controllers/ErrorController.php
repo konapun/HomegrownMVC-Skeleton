@@ -26,7 +26,7 @@ class ErrorController extends WildcardController {
 			/*
 			 * Handle custom errors which don't have to be explicitly defined
 			 */
-			 '/error/:code/:description' => function($context, $params) {
+			'/error/:code/:description' => function($context, $params) {
 			 	$viewEngine = $context->getViewEngine();
 			 	$code = $params['code'];
 			 	$desc = $params['description'];

@@ -1,0 +1,12 @@
+{
+  "comments": [
+    "This is the configuration for your specific environment. You can create as many as you like",
+    "and the environment that's chosen is specified in /config/ENVIRONMENT.json.",
+    "Refer to http://php.net/manual/en/pdo.construct.php to see what your DSN should look like."
+  ],
+  "database": {
+    "DSN": "mysql:dbname=testdb;host=127.0.0.1",
+    "USER": "database",
+    "PASSWORD": "password"
+  }
+}
