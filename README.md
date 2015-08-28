@@ -5,6 +5,7 @@ Skeleton for project using [HomegrownMVC](https://github.com/konapun/HomegrownMV
   * Views: [Smarty](http://www.smarty.net/) (included in /lib/Smarty)
   * Database: [PDO](http://php.net/pdo) (add your connection params in /config/environments/production.json)
   * Requests: HomegrownMVC
+  * Configuration: [tiered-configuration](https://github.com/konapun/tiered-configuration) read in and made available as static functions via `Config`
 
 ## Getting started
   1. Assuming you have installed PDO with drivers for the database of your choice, simply download this project and put it in your webroot.
