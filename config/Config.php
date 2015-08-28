@@ -1,5 +1,5 @@
 <?php
-include_once('lib/TieredConfiguration.php');
+include_once('lib/tiered-configuration/TieredConfiguration.php');
 include_once('errors/ConfigurationException.php');
 
 use configuration\TieredConfiguration as TieredConfiguration;
@@ -78,9 +78,8 @@ class Config {
 		/* Used by page wrapper */
 		$engine->assign('PAGE_URL', $_SERVER['REQUEST_URI']);
 		$engine->assign('YEAR', date("Y"));
-		
+
 		// Anything other operations you want to do before the view loads...
 	}
 }
 ?>
-
