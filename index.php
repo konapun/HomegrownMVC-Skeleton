@@ -25,7 +25,7 @@ $router = new HomegrownMVC\Router();
 
 Config::bootstrapViewEngine($viewEngine);
 $router->autoloadControllers(new HomegrownMVC\Context(new HomegrownMVC\Request\HTTPRequest(), $dbh, $viewEngine), 'controllers'); // automatically include all the controllers in the /controllers directory
-$router->redirect('/', 'home'); // igem will automatically display the /home route
+$router->redirect('/', '/home'); // automatically display the /home route
 if (!$router->handleRoute()) { // If no controller is found for the current path, manually invoke 404 from controllers/ErrorController.php
 	$router->handleRoute('404');
 }

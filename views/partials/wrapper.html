@@ -2,8 +2,10 @@
 <html>
   <head>
     <title>{$TITLE|default:'HomegrownMVC Skeleton'}</title>
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
     <link rel="stylesheet" href="/public/css/styles.css">
     {block name="styles"}{/block}
+    <script src="/public/js/bootstrap.min.js"></script>
     <script src="/public/js/app.js"></script>
     {block name="scripts"}{/block}
   </head>
@@ -13,9 +15,11 @@
     </header>
 
     {* Views that extend this one can insert their content here by creating a block named "content" *}
-    {block name=content}{/block}
+    <div class="container">
+      {block name=content}{/block}
+    </div>
 
-    <footer>
+    <footer class="footer">
       {include file="views/includes/footer.html"}
     </footer>
 
