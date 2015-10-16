@@ -21,7 +21,7 @@ date_default_timezone_set(Config::TIMEZONE());
 /*** Bootstrap HomegrownMVC ***/
 $dbh = Config::USE_DATABASE() ? new PDO(Config::DSN(), Config::USER(), Config::PASSWORD()) : null;
 $viewEngine = new Smarty();
-$router = new HomegrownMVC\Router();
+$router = new HomegrownMVC\Router(Config::DEBUG());
 
 Config::bootstrapViewEngine($viewEngine);
 $router->autoloadControllers(new HomegrownMVC\Context(new HomegrownMVC\Request\HTTPRequest(), $dbh, $viewEngine), 'controllers'); // automatically include all the controllers in the /controllers directory

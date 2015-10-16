@@ -1,5 +1,8 @@
 {
   "COMMENTS": [
     "This file contains default values which can be overridden by a specific environemnt"
-  ]
+  ],
+  "general": {
+    "DEBUG": false
+  }
 }
