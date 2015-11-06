@@ -5,7 +5,8 @@
 
   "general": {
     "VERSION": "0.0.1",
-    "TIMEZONE": "UTC"
+    "TIMEZONE": "UTC",
+    "ROOT": ""
   },
   "bootstrapping": {
     "env_vars": {},

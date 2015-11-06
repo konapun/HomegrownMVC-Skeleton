@@ -78,6 +78,7 @@ class Config {
 		/* Used by page wrapper */
 		$engine->assign('PAGE_URL', $_SERVER['REQUEST_URI']);
 		$engine->assign('YEAR', date("Y"));
+		$engine->assign('ROOT', Config::ROOT());
 
 		// Anything other operations you want to do before the view loads...
 	}

@@ -3,7 +3,10 @@ namespace HomegrownMVC\Model;
 
 use HomegrownMVC\Behaviors\Hashable;
 use HomegrownMVC\Error\BuildException as BuildException;
+use HomegrownMVC\Error\MultipleResultsException as MultipleResultsException;
 use HomegrownMVC\Error\ResultNotFoundException as ResultNotFoundException;
+use HomegrownMVC\Error\VisibilityException as VisibilityException;
+use HomegrownMVC\Error\MethodCallException as MethodCallException;
 
 /*
  * A singular model is the return type of its plural model queries
@@ -13,6 +16,8 @@ use HomegrownMVC\Error\ResultNotFoundException as ResultNotFoundException;
 abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 	private $fields;
 	private $anomalies;
+	private $reflection;
+	private $cache;
 	private $dbh;
 
 	/*
@@ -20,7 +25,9 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 	 */
 	final function __construct($dbh, $fields) {
 		$this->dbh = $dbh;
+		$this->reflection = null;
 		$this->fields = array();
+		$this->cache = array();
 		$this->anomalies = $this->handlePropertyConstructionAnomalies();
 		foreach ($this->listProperties() as $maybeKey => $maybeDefault) {
 			if (is_int($maybeKey)) { // Probably the property index since we require keys be strings, the real key will be in $maybeDefaul
@@ -86,10 +93,18 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 
 	/*
 	 * Return a hashed version of this model for easy consumption by the view
-	 * engine
+	 * engine. If the model contains cacheable methods and a cache key was set,
+	 * cached values will automatically be exported into the hash.
 	 */
 	function hashify() {
-		return $this->fields;
+		$hash = $this->fields;
+		foreach ($this->cache as $method => $props) {
+			if ($props['key']) { // not falsey - include cached value in output
+				$hash[$props['key']] = $props['value'];
+			}
+		}
+
+		return $hash;
 	}
 
 	/*
@@ -118,10 +133,57 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 	}
 
 	/*
+   * Cache a function `$methodName`'s output so potentially time-consuming
+   * operations are run only once. `$hashKey` is the hash key the value will be
+   * associated with when this object is hashified. If $hashKey is falsey, the
+   * cached value will not be placed into the hashified version of this model.
+   * Configure cache settings in `SingularModel::configure`.
+	 */
+	function cache($methodName, $hashKey=false) {
+		$reflection = $this->reflect();
+		if (!$reflection->hasMethod($methodName)) {
+			throw new \InvalidArgumentException("Can't cache for method '$methodName' - no such method");
+		}
+		$method = $reflection->getMethod($methodName);
+		if ($method->getNumberOfRequiredParameters() > 0) {
+			throw new \InvalidArgumentException("Can't cache for method '$methodName' - caching is currently only available for methods which take no arguments");
+		}
+
+		$method->setAccessible(false); // this way, the original method can't be called by the user which forces the call to go through __call, which uses the cacheable version
+		if ($method->isPublic()) {
+			throw new VisibilityException("Error caching method '$methodName' - Cacheable methods must be declared as 'protected' or 'private'");
+		}
+
+		$this->cache[$methodName] = array(
+			'key'   => $hashKey,
+			'value' => null
+		);
+	}
+
+	/*
 	 * Return the reference ID for this object
 	 */
 	function __toString() {
 		return spl_object_hash($this);
+	}
+
+	/*
+   * Intercept non-public method calls in case the cache is to be used
+	 */
+	final function __call($method, $args) {
+		if (array_key_exists($method, $this->cache)) {
+			$cache = $this->cache[$method];
+			if (!is_null($cache['value'])) {
+				return $cache['value'];
+			}
+			else {
+				$ret = call_user_func_array(array($this, $method), $args);
+				$this->cache[$method]['value'] = $ret;
+				return $ret;
+			}
+		}
+
+		throw new MethodCallException("Can't locate method '$method' in class " . get_class($this));
 	}
 
 	final function getSchema() {
@@ -199,7 +261,10 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 		}
 
 		foreach ($properties as $pkey => $pval) {
-			if (!$this->setValue($pkey, $pval)) {
+			if (is_null($pval)) {
+				throw new BuildException("Null value given for property '$pkey'. Requires: $fieldstr");
+			}
+			else if (!$this->setValue($pkey, $pval)) {
 				throw new BuildException("Model has no property '$pkey'. Requires: $fieldstr");
 			}
 		}
@@ -234,8 +299,14 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 
 		$result = $found;
 		if (is_array($result)) {
-			$result = $found[0];
+      if (count($result) == 1) {
+        $result = $result[0];
+      }
+      else {
+        throw new MultipleResultsException($result, "Builder returned multiple results (" . count($result) . ")");
+      }
 		}
+
 		$this->cloneIntoThis($result);
 	}
 
@@ -254,7 +325,7 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 
   private function giveDefaults($fields) {
     foreach ($this->fields as $fieldKey => $fieldVal) {
-      if (!array_key_exists($fieldKey, $fields)) {
+      if (!array_key_exists($fieldKey, $fields) || is_null($fields[$fieldKey])) {
         $fields[$fieldKey] = $fieldVal;
       }
     }
@@ -269,6 +340,13 @@ abstract class SingularModel implements \HomegrownMVC\Behaviors\Hashable {
 		foreach ($this->fields as $fkey => $fval) {
 			$this->fields[$fkey] = $plural->getValue($fkey);
 		}
+	}
+
+	private function reflect() {
+		if ($this->reflection == null) {
+			$this->reflection = new \ReflectionClass($this);
+		}
+		return $this->reflection;
 	}
 }
 ?>

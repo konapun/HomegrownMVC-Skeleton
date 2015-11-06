@@ -10,6 +10,9 @@ This is a router/controller microframework (with other optional elements) born o
 I inherited more manageable. The router/controller portion has no coupling to anything else (dependency injection is managed through the context),
 and as a result should work with any templating system and DBAL.
 
+## Caveats
+There is currently no way to match routes based on HTTP verbs and no such functionality is planned for the future.
+
 ## Recommended setup
 Although Homegrown is written to be flexible and modular, it is known to work well with the following setup:
   * **router/controllers**: HomegrownMVC (read on for documentation for this portion)
@@ -72,6 +75,13 @@ $router->autoloadControllers($context, 'controllers'); // the 2nd arg is the dir
 if (!$router->handleRoute()) {
 	$router->handleRoute('404'); // manually reroute to 404 defined in the error controller
 }
+```
+
+### Running a HomegrownMVC app as a subdirectory
+HomegrownMVC assumes it's being run from www.example.com/. If you want to run it from a subdirectory, such as www.example.com/app, you will need to modify your .htaccess (included in this project), and make a single change to your index.php:
+
+```php
+$router->setBaseRoute('app');
 ```
 
 ### Error handling in routes
@@ -326,6 +336,23 @@ which returns a mapping of keys to functions which provide an instantiation upon
     $foundPerson = new Person($dbh, array(
       'id' => 0 // Here we use the ID builder specified above
     ));
+
+Singular models also provide cacheable methods. For instance, if you have a long-running operation and want it to be run only once and then return the computed result for subsequent calls, this may be a good candidate for caching. You can set up cacheable methods in `SingularModel::configure()`:
+
+    // Example SingularModel which sets up caching:
+    class Taxon extends SingularModel {
+
+      function configure() {
+        $this->cache('findTaxonomicRank', 'taxonomic_rank');
+      }
+
+      protected function findTaxonomicRank() {
+        $result = $this->someLongRunningOperation();
+        return $result;
+      }
+    }
+
+Note that cached methods must be defined as `protected` - Since PHP's magic method `__call` can only intercept calls to non-existant functions, this is the only way to get caching to work. A reflection call is used to guarantee method visibility is correctly set. The second argument to `cache` defines the key that should be used for the cache value when the SingularModel is hashified. If no value is provided, the cached value will not be included in the hash output. Note that caching support is only available for methods which do not take any parameters for now (this is also enforced).
 
 #### Extended CSV
 Data files are given in an extended CSV format which is normal CSV with the following addition: You may link
